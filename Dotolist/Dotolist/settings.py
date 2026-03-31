@@ -41,8 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
-    'tailwind',
-    'theme',
+
 ]
 
 MIDDLEWARE = [
@@ -155,11 +154,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-TAILWIND_APP_NAME = "theme"
-INTERNAL_IPS =[
-    "127.0.0.1"
-]
 
 
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
