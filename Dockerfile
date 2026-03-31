@@ -10,6 +10,7 @@ WORKDIR /app
 
 # 4️⃣ Installer les dépendances système (important pour psycopg2)
 RUN apt-get update && apt-get install -y gcc libpq-dev
+RUN python -m pip install --upgrade pip
 
 # 5️⃣ Installer les dépendances Python
 COPY requirements.txt .
