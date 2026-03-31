@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-k*!t1w=r2ocj1zp!&!0s2f-alm7e*hon$k6-lq+)wvdyy60m_@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.onrender.com']  # autorise tous les sous-domaines Render
 
 
 # Application definition
@@ -81,28 +81,13 @@ WSGI_APPLICATION = 'Dotolist.wsgi.application'
 
 
 DEBUG = config('DEBUG', default=True, cast=bool)
-
-if DEBUG:
-    # 👉 PostgreSQL local
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME'),
-            'USER': config('DB_USER'),
-            'PASSWORD': config('DB_PASSWORD'),
-            'HOST': config('DB_HOST'),
-            'PORT': config('DB_PORT'),
-        }
-    }
-else:
-    # 👉 Production (DATABASE_URL)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default='postgresql://postgres:3306@127.0.0.1:5432/Dotolist'),
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
 STATIC_URL = '/static/'
 
 # optionnel (utile en production)
@@ -163,14 +148,10 @@ INTERNAL_IPS =[
 
 
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
-
-# Chemin pour les fichiers statiques
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # pour collectstatic en prod
 
-# Emplacement où Django collecte tous les fichiers statiques pour la prod
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # pour collectstatic en production
-
-# Dossier(s) supplémentaire(s) pour les fichiers statiques (dev)
+# Si tu as des fichiers statiques supplémentaires
 STATICFILES_DIRS = [
-    BASE_DIR / 'app' / 'static',  # chemin vers ton dossier static principal
+    BASE_DIR / 'app' / 'static',  # vérifier que ce dossier existe
 ]
