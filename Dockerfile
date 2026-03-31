@@ -8,22 +8,24 @@ ENV PYTHONUNBUFFERED=1
 # 3️⃣ Répertoire de travail
 WORKDIR /app
 
-# 4️⃣ Installer les dépendances système (important pour psycopg2)
-RUN apt-get update && apt-get install -y gcc libpq-dev
+# 4️⃣ Installer les dépendances système (nécessaires pour psycopg2)
+RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+
+# 5️⃣ Mettre pip à jour
 RUN python -m pip install --upgrade pip
 
-# 5️⃣ Installer les dépendances Python
+# 6️⃣ Installer les dépendances Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 6️⃣ Copier le projet
+# 7️⃣ Copier le projet
 COPY . .
 
-# 7️⃣ Exposer le port
+# 8️⃣ Exposer le port
 EXPOSE 8000
 
-# 8️⃣ Collect static files
-#RUN python Dotolist/manage.py collectstatic --noinput
-
-# 9️⃣ Lancer avec Gunicorn (PRODUCTION)
-CMD ["sh", "-c", "gunicorn Dotolist.wsgi:application --bind 0.0.0.0:$PORT"]
+# 9️⃣ CMD: collectstatic + migrate + lancer gunicorn
+# Utiliser les variables d'environnement fournies par Render ou Docker
+CMD python Dotolist/manage.py collectstatic --noinput && \
+    python Dotolist/manage.py migrate && \
+    gunicorn Dotolist.wsgi:application --bind 0.0.0.0:$PORT
