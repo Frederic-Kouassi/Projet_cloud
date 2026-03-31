@@ -61,7 +61,6 @@ tailwind.config = {
   }
   .btn-add-cat:hover { border-color: #7c6ee6; color: #a79af5; background: #1a1a28; }
 
-  /* ── Modales ── */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.7);
     backdrop-filter: blur(4px); z-index: 100;
@@ -101,6 +100,13 @@ tailwind.config = {
   }
   .btn-primary:hover { background: #9181f0; }
   .btn-primary:active { transform: scale(0.97); }
+
+  .btn-danger {
+    background: #3d1515; color: #f87171; border-radius: 8px; padding: 10px 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    border: 1px solid #5a2020; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-danger:hover { background: #5a2020; color: #fca5a5; }
 
   .btn-ghost {
     background: transparent; color: #6b6b80; border-radius: 8px; padding: 10px 16px;
@@ -163,6 +169,17 @@ tailwind.config = {
     animation: spin 0.6s linear infinite; display: inline-block;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Actions tâche visibles au hover */
+  .task-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+  .task-card:hover .task-actions { opacity: 1; }
+  .task-action-btn {
+    background: #1e1e28; border: 1px solid #2a2a3a; border-radius: 6px;
+    color: #6b6b80; cursor: pointer; font-size: 11px; padding: 3px 8px;
+    transition: all 0.15s; line-height: 1.5; white-space: nowrap;
+  }
+  .task-action-btn:hover { background: #2a2a3a; color: #a0a0b0; }
+  .task-action-btn.del:hover { background: #3d1515; border-color: #5a2020; color: #f87171; }
 </style>
 </head>
 <body>
@@ -178,7 +195,6 @@ tailwind.config = {
       <p class="text-xs mt-0.5" style="color:#4a4a60">Vos tâches, organisées.</p>
     </div>
 
-    <!-- Stats -->
     <div class="grid grid-cols-2 gap-2 mb-6">
       <div class="rounded-lg p-3" style="background:#0c0c0f; border:1px solid #1e1e28">
         <p class="text-2xl font-display" style="font-weight:700; color:#7c6ee6" id="stat-total">–</p>
@@ -190,7 +206,6 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- Statuts -->
     <p class="text-xs font-display uppercase tracking-widest mb-2" style="color:#4a4a60; font-weight:600">Statut</p>
     <nav class="space-y-0.5 mb-6" id="status-nav">
       <div class="cat-item active flex items-center gap-2.5 px-3 py-2" onclick="setStatusFilter('all', this)">
@@ -210,7 +225,6 @@ tailwind.config = {
       </div>
     </nav>
 
-    <!-- Catégories -->
     <div class="flex items-center justify-between mb-2">
       <p class="text-xs font-display uppercase tracking-widest" style="color:#4a4a60; font-weight:600">Catégories</p>
     </div>
@@ -258,7 +272,7 @@ tailwind.config = {
           <span class="text-sm">Chargement des tâches…</span>
         </div>
       </div>
-      <div class="empty-state flex flex-col items-center justify-center h-64 hidden" id="empty-state">
+      <div class="empty-state flex-col items-center justify-center h-64 hidden" id="empty-state">
         <div class="text-5xl mb-4">✦</div>
         <p class="font-display text-base" style="font-weight:600">Aucune tâche</p>
         <p class="text-sm mt-1" style="color:#5a5a70">Ajoutez votre première tâche ci-dessous.</p>
@@ -276,7 +290,7 @@ tailwind.config = {
 <div class="modal-overlay" id="cat-modal">
   <div class="modal-box">
     <button class="btn-close-modal" id="btn-close-cat">✕</button>
-    <h3 class="font-display text-lg mb-1" style="font-weight:700">Nouvelle catégorie</h3>
+    <h3 class="font-display text-lg mb-1" id="cat-modal-title" style="font-weight:700">Nouvelle catégorie</h3>
     <p class="text-sm mb-6" style="color:#5a5a70">Organisez vos tâches par thème ou projet.</p>
 
     <div class="mb-4">
@@ -292,7 +306,6 @@ tailwind.config = {
       <div class="flex gap-2 flex-wrap" id="color-picker"></div>
     </div>
 
-    <!-- Aperçu -->
     <div class="rounded-lg p-3 mb-6 flex items-center gap-3" style="background:#0c0c0f; border:1px solid #1e1e28">
       <span style="font-size:18px" id="prev-icon">🗂️</span>
       <div>
@@ -306,7 +319,7 @@ tailwind.config = {
 
     <div class="flex gap-2 justify-end">
       <button class="btn-ghost" id="btn-cancel-cat">Annuler</button>
-      <button class="btn-primary" onclick="saveCategory()">Créer la catégorie</button>
+      <button class="btn-primary" id="btn-save-cat" onclick="saveCategory()">Créer la catégorie</button>
     </div>
   </div>
 </div>
@@ -315,8 +328,8 @@ tailwind.config = {
 <div class="modal-overlay" id="task-modal">
   <div class="modal-box task-modal-box">
     <button class="btn-close-modal" id="btn-close-task">✕</button>
-    <h3 class="font-display text-lg mb-1" style="font-weight:700">Nouvelle tâche</h3>
-    <p class="text-sm mb-6" style="color:#5a5a70">Ajoutez une tâche à votre liste.</p>
+    <h3 class="font-display text-lg mb-1" id="task-modal-title" style="font-weight:700">Nouvelle tâche</h3>
+    <p class="text-sm mb-6" id="task-modal-subtitle" style="color:#5a5a70">Ajoutez une tâche à votre liste.</p>
 
     <div class="mb-4">
       <label class="block text-xs mb-1.5" style="font-weight:500; color:#a0a0b0">Titre <span style="color:#f87171">*</span></label>
@@ -350,6 +363,7 @@ tailwind.config = {
           <option value="todo">À faire</option>
           <option value="in_progress">En cours</option>
           <option value="done">Terminée</option>
+          <option value="cancelled">Annulée</option>
         </select>
       </div>
       <div>
@@ -365,9 +379,15 @@ tailwind.config = {
       <input class="field-input" id="task-tags-input" placeholder="ex: urgent, client, bug…"/>
     </div>
 
-    <div class="flex gap-2 justify-end">
-      <button class="btn-ghost" id="btn-cancel-task">Annuler</button>
-      <button class="btn-primary" onclick="saveTask()">Créer la tâche</button>
+    <div class="flex items-center justify-between gap-2">
+      <!-- Bouton supprimer — visible uniquement en mode édition -->
+      <button class="btn-danger hidden" id="btn-delete-task-modal" onclick="deleteTaskFromModal()">
+        🗑 Supprimer
+      </button>
+      <div class="flex gap-2 ml-auto">
+        <button class="btn-ghost" id="btn-cancel-task">Annuler</button>
+        <button class="btn-primary" id="btn-save-task" onclick="saveTask()">Créer la tâche</button>
+      </div>
     </div>
   </div>
 </div>
@@ -383,7 +403,7 @@ let currentFilter = { status: 'all', category: null };
 
 const COLORS = ['#7c6ee6','#34d399','#fb923c','#f87171','#60a5fa','#f59e0b','#e879f9','#4ade80','#38bdf8','#a78bfa'];
 const ICONS  = ['🗂️','💼','🚀','📚','🛒','💬','🏠','🎯','🔧','📦'];
-const PRIORITY_ORDER = { urgent:0, high:1, medium:2, low:3 };
+const PRIORITY_ORDER  = { urgent:0, high:1, medium:2, low:3 };
 const PRIORITY_LABELS = { low:'Basse', medium:'Moyenne', high:'Haute', urgent:'Urgente' };
 const STATUS_LABELS   = { todo:'À faire', in_progress:'En cours', done:'Terminée', cancelled:'Annulée' };
 
@@ -393,29 +413,43 @@ function getCsrf() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  MODALES  —  FIX PRINCIPAL
-//  On branche les listeners UNE SEULE FOIS via initModalListeners()
-//  appelé dans init(). Plus de onclick="" inline sur les boutons
-//  de fermeture → plus de conflit.
+//  UTILITAIRES MODALES  — déclarés EN PREMIER
 // ══════════════════════════════════════════════════════════════════
-function initModalListeners() {
-  // Catégorie
-  document.getElementById('btn-close-cat').addEventListener('click',  () => closeModal('cat-modal'));
-  document.getElementById('btn-cancel-cat').addEventListener('click', () => closeModal('cat-modal'));
-  document.getElementById('cat-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeModal('cat-modal');
-  });
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  // Tâche
-  document.getElementById('btn-close-task').addEventListener('click',  () => closeModal('task-modal'));
-  document.getElementById('btn-cancel-task').addEventListener('click', () => closeModal('task-modal'));
-  document.getElementById('task-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeModal('task-modal');
-  });
+// Fermeture + reset modal Catégorie
+function closeCatModal() {
+  closeModal('cat-modal');
+  delete document.getElementById('cat-modal').dataset.editId;
+  document.getElementById('cat-modal-title').textContent = 'Nouvelle catégorie';
+  document.getElementById('btn-save-cat').textContent    = 'Créer la catégorie';
 }
 
-function openModal(id)  { document.getElementById(id).classList.add('open');    }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// Fermeture + reset modal Tâche
+function closeTaskModal() {
+  closeModal('task-modal');
+  delete document.getElementById('task-modal').dataset.editId;
+  document.getElementById('task-modal-title').textContent    = 'Nouvelle tâche';
+  document.getElementById('task-modal-subtitle').textContent = 'Ajoutez une tâche à votre liste.';
+  document.getElementById('btn-save-task').textContent       = 'Créer la tâche';
+  document.getElementById('btn-delete-task-modal').classList.add('hidden');
+}
+
+// Listeners — branchés UNE SEULE FOIS dans init()
+function initModalListeners() {
+  document.getElementById('btn-close-cat').addEventListener('click',  closeCatModal);
+  document.getElementById('btn-cancel-cat').addEventListener('click', closeCatModal);
+  document.getElementById('cat-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeCatModal();
+  });
+
+  document.getElementById('btn-close-task').addEventListener('click',  closeTaskModal);
+  document.getElementById('btn-cancel-task').addEventListener('click', closeTaskModal);
+  document.getElementById('task-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeTaskModal();
+  });
+}
 
 // ── Color / Icon pickers ──────────────────────────────────────────
 function renderColorPicker() {
@@ -466,7 +500,6 @@ async function loadTasks() {
     const res  = await fetch('/api/tasks/');
     const data = await res.json();
     tasks = data.tasks ?? [];
-    // Stats : Django renvoie total + done, sinon on calcule localement
     document.getElementById('stat-total').textContent = data.total ?? tasks.length;
     document.getElementById('stat-done').textContent  = data.done  ?? tasks.filter(t => t.status === 'done').length;
     console.log('✅ Tâches chargées :', tasks.length);
@@ -476,48 +509,79 @@ async function loadTasks() {
   }
 }
 
-// ── Sidebar : render nav catégories avec compteurs ────────────────
+// ── Sidebar : nav catégories ──────────────────────────────────────
 function renderCategoryNav() {
   const nav = document.getElementById('cat-nav');
   if (!nav) return;
 
   if (categories.length === 0) {
-    nav.innerHTML = `<p style="font-size:12px; color:#3a3a50; padding:8px 12px;">Aucune catégorie</p>`;
+    nav.innerHTML = `<p style="font-size:12px;color:#3a3a50;padding:8px 12px;">Aucune catégorie</p>`;
     return;
   }
 
   nav.innerHTML = categories.map(c => {
-    // Ces filtres fonctionnent car tasks est chargé AVANT renderCategoryNav()
     const total  = tasks.filter(t => t.category_id === c.id).length;
     const done   = tasks.filter(t => t.category_id === c.id && t.status === 'done').length;
     const active = currentFilter.category === c.id ? ' active' : '';
 
     return `
-      <div class="cat-item${active} flex items-center gap-2.5 px-3 py-2"
+      <div class="cat-item${active} flex items-center gap-2.5 px-3 py-2 group"
            onclick="setCategoryFilter(${c.id}, this)" data-cat="${c.id}">
         <span style="font-size:14px">${c.icon || '📁'}</span>
         <span class="text-sm flex-1" style="color:#a0a0b0">${c.name}</span>
         <div class="flex items-center gap-1.5">
           <span class="text-xs rounded-full px-1.5 py-0.5"
-                style="background:#1e1e28; color:#6b6b80">${total}</span>
-          ${done > 0 ? `
-          <span class="text-xs rounded-full px-1.5 py-0.5"
-                style="background:#0d2318; color:#34d399; border:1px solid #1a3d28">✓${done}</span>` : ''}
+                style="background:#1e1e28;color:#6b6b80">${total}</span>
+          ${done > 0 ? `<span class="text-xs rounded-full px-1.5 py-0.5"
+                style="background:#0d2318;color:#34d399;border:1px solid #1a3d28">✓${done}</span>` : ''}
+          <div class="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+               onclick="event.stopPropagation()">
+            <button onclick="openEditCategoryModal(${c.id})" title="Modifier"
+                    style="background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;color:#6b6b80;font-size:11px;transition:background 0.15s"
+                    onmouseover="this.style.background='#2a2a3a'" onmouseout="this.style.background='none'">✏️</button>
+            <button onclick="deleteCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" title="Supprimer"
+                    style="background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;color:#6b6b80;font-size:11px;transition:background 0.15s"
+                    onmouseover="this.style.background='#2a2a3a'" onmouseout="this.style.background='none'">🗑️</button>
+          </div>
         </div>
       </div>`;
   }).join('');
 }
 
-// ── Modal : catégorie ────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+//  CATÉGORIES
+// ══════════════════════════════════════════════════════════════════
 function openCategoryModal() {
   selectedColor = '#7c6ee6';
   selectedIcon  = '🗂️';
-  document.getElementById('cat-name').value = '';
-  document.getElementById('prev-name').textContent = 'Nom de la catégorie';
+  document.getElementById('cat-name').value            = '';
+  document.getElementById('prev-name').textContent     = 'Nom de la catégorie';
   document.getElementById('prev-dot').style.background = '#7c6ee6';
-  document.getElementById('prev-icon').textContent = '🗂️';
+  document.getElementById('prev-icon').textContent     = '🗂️';
   renderColorPicker();
   renderIconPicker();
+  openModal('cat-modal');
+  setTimeout(() => document.getElementById('cat-name').focus(), 250);
+}
+
+function openEditCategoryModal(id) {
+  const cat = categories.find(c => c.id === id);
+  if (!cat) return;
+
+  selectedColor = cat.color || '#7c6ee6';
+  selectedIcon  = cat.icon  || '🗂️';
+
+  document.getElementById('cat-name').value            = cat.name;
+  document.getElementById('prev-name').textContent     = cat.name;
+  document.getElementById('prev-dot').style.background = selectedColor;
+  document.getElementById('prev-icon').textContent     = selectedIcon;
+  renderColorPicker();
+  renderIconPicker();
+
+  document.getElementById('cat-modal').dataset.editId   = id;
+  document.getElementById('cat-modal-title').textContent = 'Modifier la catégorie';
+  document.getElementById('btn-save-cat').textContent    = 'Enregistrer';
+
   openModal('cat-modal');
   setTimeout(() => document.getElementById('cat-name').focus(), 250);
 }
@@ -531,49 +595,123 @@ async function saveCategory() {
     setTimeout(() => input.style.borderColor = '', 1500);
     return;
   }
+
+  const editId = document.getElementById('cat-modal').dataset.editId;
+  const isEdit = !!editId;
+  const url    = isEdit ? `/api/categories/${editId}/update/` : '/categories/create/';
+
   const fd = new FormData();
   fd.append('name',  name);
   fd.append('icon',  selectedIcon);
   fd.append('color', selectedColor);
 
   try {
-    await fetch('/categories/create/', {
+    const res  = await fetch(url, {
       method: 'POST',
       headers: { 'X-CSRFToken': getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
       body: fd,
     });
-    closeModal('cat-modal');
-    // Recharge les catégories depuis Django puis re-render
+    const data = await res.json();
+    if (!res.ok || data.ok === false) throw new Error(data.error || 'Erreur serveur');
+
+    closeCatModal();
     await loadCategories();
     renderCategoryNav();
     refreshTaskCatSelect();
-    showToast(`Catégorie "${name}" créée !`);
+    showToast(isEdit ? `✅ Catégorie "${name}" modifiée !` : `✅ Catégorie "${name}" créée !`);
   } catch (err) {
     console.error('❌ saveCategory :', err);
-    showToast('❌ Erreur lors de la création.');
+    showToast('❌ Erreur lors de la sauvegarde.');
   }
 }
 
-// ── Modal : tâche ────────────────────────────────────────────────
+async function deleteCategory(id, name) {
+  if (!confirm(`Supprimer la catégorie "${name}" ?\nLes tâches liées ne seront pas supprimées.`)) return;
+
+  try {
+    const res  = await fetch(`/api/categories/${id}/delete/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+
+    if (currentFilter.category === id) {
+      currentFilter.category = null;
+      document.getElementById('main-title').textContent = 'Toutes les tâches';
+    }
+
+    await loadCategories();
+    await loadTasks();
+    renderCategoryNav();
+    renderTasks();
+    showToast(`🗑️ Catégorie "${name}" supprimée.`);
+  } catch (err) {
+    console.error('❌ deleteCategory :', err);
+    showToast('❌ Erreur lors de la suppression.');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  TÂCHES
+// ══════════════════════════════════════════════════════════════════
+
+// ── Ouvrir en mode création ───────────────────────────────────────
 function openTaskModal() {
-  document.getElementById('task-title-input').value = '';
-  document.getElementById('task-desc-input').value  = '';
-  document.getElementById('task-tags-input').value  = '';
-  document.getElementById('task-due-input').value   = '';
+  refreshTaskCatSelect();
+  document.getElementById('task-title-input').value     = '';
+  document.getElementById('task-desc-input').value      = '';
+  document.getElementById('task-tags-input').value      = '';
+  document.getElementById('task-due-input').value       = '';
   document.getElementById('task-priority-select').value = 'medium';
   document.getElementById('task-status-select').value   = 'todo';
-  refreshTaskCatSelect();
+  document.getElementById('task-cat-select').value      = '';
+
+  document.getElementById('task-modal-title').textContent    = 'Nouvelle tâche';
+  document.getElementById('task-modal-subtitle').textContent = 'Ajoutez une tâche à votre liste.';
+  document.getElementById('btn-save-task').textContent       = 'Créer la tâche';
+  document.getElementById('btn-delete-task-modal').classList.add('hidden');
+  delete document.getElementById('task-modal').dataset.editId;
+
   openModal('task-modal');
   setTimeout(() => document.getElementById('task-title-input').focus(), 250);
 }
 
-function refreshTaskCatSelect() {
-  const sel = document.getElementById('task-cat-select');
-  if (!sel) return;
-  sel.innerHTML = `<option value="">— Aucune —</option>` +
-    categories.map(c => `<option value="${c.id}">${c.icon || '📁'} ${c.name}</option>`).join('');
+// ── Ouvrir en mode édition ────────────────────────────────────────
+function openEditTaskModal(id) {
+  const t = tasks.find(t => t.id === id);
+  if (!t) return;
+
+  refreshTaskCatSelect();
+
+  document.getElementById('task-title-input').value     = t.title       || '';
+  document.getElementById('task-desc-input').value      = t.description || '';
+  document.getElementById('task-priority-select').value = t.priority    || 'medium';
+  document.getElementById('task-status-select').value   = t.status      || 'todo';
+  document.getElementById('task-cat-select').value      = t.category_id || '';
+  document.getElementById('task-tags-input').value      = (t.tags || []).join(', ');
+
+  // Formatage date → datetime-local (YYYY-MM-DDTHH:MM)
+  if (t.due_date) {
+    const d   = new Date(t.due_date);
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('task-due-input').value =
+      `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } else {
+    document.getElementById('task-due-input').value = '';
+  }
+
+  document.getElementById('task-modal-title').textContent    = 'Modifier la tâche';
+  document.getElementById('task-modal-subtitle').textContent = 'Modifiez les informations de cette tâche.';
+  document.getElementById('btn-save-task').textContent       = 'Enregistrer';
+  document.getElementById('btn-delete-task-modal').classList.remove('hidden');
+  document.getElementById('task-modal').dataset.editId = id;
+
+  openModal('task-modal');
+  setTimeout(() => document.getElementById('task-title-input').focus(), 250);
 }
 
+// ── Sauvegarder (création OU édition) ────────────────────────────
 async function saveTask() {
   const title = document.getElementById('task-title-input').value.trim();
   if (!title) {
@@ -584,8 +722,13 @@ async function saveTask() {
     return;
   }
 
+  const editId = document.getElementById('task-modal').dataset.editId;
+  const isEdit = !!editId;
+  const url    = isEdit ? `/api/tasks/${editId}/update/` : '/tasks/create/';
+
   const tagsRaw  = document.getElementById('task-tags-input').value;
   const tagNames = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
   const fd = new FormData();
   fd.append('title',       title);
   fd.append('description', document.getElementById('task-desc-input').value.trim());
@@ -596,7 +739,7 @@ async function saveTask() {
   tagNames.forEach(n => fd.append('tags', n));
 
   try {
-    const res  = await fetch('/tasks/create/', {
+    const res  = await fetch(url, {
       method: 'POST',
       headers: { 'X-CSRFToken': getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
       body: fd,
@@ -604,17 +747,53 @@ async function saveTask() {
     const data = await res.json();
     if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur serveur');
 
-    closeModal('task-modal');
-    showToast(`✅ Tâche "${data.title}" créée !`);
-
-    // Recharge tâches + stats + nav SANS reload de page
+    closeTaskModal();
+    showToast(isEdit ? `✅ Tâche "${title}" modifiée !` : `✅ Tâche "${data.title || title}" créée !`);
     await loadTasks();
     renderTasks();
-    renderCategoryNav();    // ← met à jour les compteurs par catégorie
+    renderCategoryNav();
   } catch (err) {
     console.error('❌ saveTask :', err);
     showToast('❌ Erreur lors de la sauvegarde.');
   }
+}
+
+// ── Supprimer depuis le bouton dans la modal ──────────────────────
+async function deleteTaskFromModal() {
+  const id    = document.getElementById('task-modal').dataset.editId;
+  const title = document.getElementById('task-title-input').value.trim();
+  if (!id) return;
+  if (!confirm(`Supprimer la tâche "${title}" ? Cette action est irréversible.`)) return;
+  closeTaskModal();
+  await deleteTask(id, title);
+}
+
+// ── Supprimer une tâche (appelé aussi depuis la card) ─────────────
+async function deleteTask(id, title) {
+  try {
+    const res  = await fetch(`/api/tasks/${id}/delete/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+
+    await loadTasks();
+    renderTasks();
+    renderCategoryNav();
+    showToast(`🗑️ Tâche "${title}" supprimée.`);
+  } catch (err) {
+    console.error('❌ deleteTask :', err);
+    showToast('❌ Erreur lors de la suppression.');
+  }
+}
+
+// ── Populate select catégories dans la modal tâche ────────────────
+function refreshTaskCatSelect() {
+  const sel = document.getElementById('task-cat-select');
+  if (!sel) return;
+  sel.innerHTML = `<option value="">— Aucune —</option>` +
+    categories.map(c => `<option value="${c.id}">${c.icon || '📁'} ${c.name}</option>`).join('');
 }
 
 // ── Filtres ──────────────────────────────────────────────────────
@@ -625,8 +804,8 @@ function setStatusFilter(val, el) {
   el.classList.add('active');
   document.querySelectorAll('#cat-nav .cat-item').forEach(e => e.classList.remove('active'));
   document.getElementById('main-title').textContent =
-    val === 'all' ? 'Toutes les tâches' :
-    val === 'todo' ? 'À faire' :
+    val === 'all'         ? 'Toutes les tâches' :
+    val === 'todo'        ? 'À faire' :
     val === 'in_progress' ? 'En cours' : 'Terminées';
   renderTasks();
 }
@@ -649,7 +828,6 @@ function toggleTask(id) {
   t.status = t.status === 'done' ? 'todo' : 'done';
   renderTasks();
   renderCategoryNav();
-  // Mise à jour stat-done localement
   document.getElementById('stat-done').textContent = tasks.filter(t => t.status === 'done').length;
 }
 
@@ -685,12 +863,15 @@ function renderTasks() {
   if (list.length === 0) {
     grid.innerHTML = '';
     empty?.classList.remove('hidden');
+    empty?.classList.add('flex');
     return;
   }
   empty?.classList.add('hidden');
+  empty?.classList.remove('flex');
   grid.innerHTML = list.map(taskCard).join('');
 }
 
+// ── Card tâche ────────────────────────────────────────────────────
 function taskCard(t) {
   const cat       = categories.find(c => c.id === t.category_id);
   const isDone    = t.status === 'done';
@@ -702,11 +883,12 @@ function taskCard(t) {
     `<span class="text-xs px-2 py-0.5 rounded-full"
            style="background:#1e1e28;color:#6b6b80;border:1px solid #2a2a3a">${g}</span>`
   ).join('');
+  const titleEsc = t.title.replace(/'/g, "\\'");
 
   return `
   <div class="task-card p-4 ${isDone?'done':''}" id="task-${t.id}">
     <div class="flex items-start gap-3">
-      <label class="check-wrap mt-0.5">
+      <label class="check-wrap mt-0.5" onclick="event.stopPropagation()">
         <input type="checkbox" ${isDone?'checked':''} onchange="toggleTask(${t.id})"/>
         <div class="check-box">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2"
@@ -720,6 +902,10 @@ function taskCard(t) {
             ${PRIORITY_LABELS[t.priority] || t.priority}
           </span>
           ${isOverdue ? `<span class="overdue-tag">⚠ En retard</span>` : ''}
+          <div class="task-actions ml-auto" onclick="event.stopPropagation()">
+            <button class="task-action-btn" onclick="openEditTaskModal(${t.id})">✏️ Modifier</button>
+            <button class="task-action-btn del" onclick="deleteTask(${t.id}, '${titleEsc}')">🗑️</button>
+          </div>
         </div>
         ${t.description ? `<p class="text-xs mb-2 leading-relaxed" style="color:#6b6b80">${t.description}</p>` : ''}
         <div class="flex items-center gap-3 flex-wrap">
@@ -765,8 +951,8 @@ function showToast(msg) {
 // ── Keyboard ──────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    closeModal('cat-modal');
-    closeModal('task-modal');
+    closeCatModal();
+    closeTaskModal();
   }
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
@@ -774,18 +960,12 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ══════════════════════════════════════════════════════════════════
-//  INIT — UN SEUL point d'entrée, UN SEUL DOMContentLoaded
-// ══════════════════════════════════════════════════════════════════
+// ── INIT ──────────────────────────────────────────────────────────
 async function init() {
-  initModalListeners();       // listeners modales (une seule fois)
+  initModalListeners();
   renderColorPicker();
   renderIconPicker();
-
-  // Charge catégories ET tâches en parallèle
   await Promise.all([loadCategories(), loadTasks()]);
-
-  // Les deux tableaux sont remplis → render avec les vrais compteurs
   renderCategoryNav();
   renderTasks();
 }

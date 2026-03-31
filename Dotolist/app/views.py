@@ -1,4 +1,4 @@
-from django.shortcuts import render,  redirect
+from django.shortcuts import render,  redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 
@@ -196,3 +196,75 @@ class CategoryListAPIView(View):
             })
         
         return JsonResponse({'categories': data})
+    
+    
+    
+    
+    
+    
+    import json
+from django.views import View
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+# ── Modifier une catégorie ────────────────────────────────────────
+@method_decorator(csrf_exempt, name='dispatch')
+class CategoryUpdateAPIView(View):
+    def post(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return JsonResponse({'ok': False, 'error': 'Catégorie introuvable'}, status=404)
+
+        data = request.POST  # FormData
+        if 'name' in data:
+            category.name = data['name'].strip()
+        if 'icon' in data:
+            category.icon = data['icon']
+        if 'color' in data:
+            category.color = data['color']
+        category.save()
+        return JsonResponse({'ok': True, 'id': category.id, 'name': category.name})
+
+
+# ── Supprimer une catégorie ───────────────────────────────────────
+@method_decorator(csrf_exempt, name='dispatch')
+class CategoryDeleteAPIView(View):
+    def post(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return JsonResponse({'ok': False, 'error': 'Catégorie introuvable'}, status=404)
+
+        name = category.name
+        category.delete()   # les tâches liées passent à category=NULL (SET_NULL)
+        return JsonResponse({'ok': True, 'deleted': name})
+    
+    
+    
+
+    
+# /api/tasks/<pk>/update/
+class TaskUpdateAPIView(View):
+    def post(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        data = request.POST
+        if 'title'       in data: task.title       = data['title'].strip()
+        if 'description' in data: task.description = data['description'].strip()
+        if 'priority'    in data: task.priority    = data['priority']
+        if 'status'      in data: task.status      = data['status']
+        if 'due_date'    in data: task.due_date     = data['due_date'] or None
+        if 'category'    in data:
+            cat_id = data['category']
+            task.category = Category.objects.get(pk=cat_id) if cat_id else None
+        task.save()
+        return JsonResponse({'ok': True})
+
+# /api/tasks/<pk>/delete/
+class TaskDeleteAPIView(View):
+    def post(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        title = task.title
+        task.delete()
+        return JsonResponse({'ok': True, 'deleted': title})
