@@ -22,6 +22,8 @@ COPY . .
 # 7️⃣ Exposer le port
 EXPOSE 8000
 
-RUN python manage.py collectstatic --noinput
-# 8️⃣ Lancer avec Gunicorn (PRODUCTION)
+# 8️⃣ Collect static files
+RUN python Dotolist/manage.py collectstatic --noinput
+
+# 9️⃣ Lancer avec Gunicorn (PRODUCTION)
 CMD ["sh", "-c", "gunicorn Dotolist.wsgi:application --bind 0.0.0.0:$PORT"]
