@@ -16,10 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from app.views import RegisterView, CategoryCreateView
+from app.views import RegisterView, CategoryCreateView,  TaskCreateView, TaskListAPIView, CategoryListAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RegisterView.as_view(), name='register'),
       path('categories/create/', CategoryCreateView.as_view(), name='category_create'),
+     
+       path('tasks/create/', TaskCreateView.as_view(), name='task_create'),
+       path('api/tasks/', TaskListAPIView.as_view(), name='api_tasks'), 
+       path('api/categories/', CategoryListAPIView.as_view(), name='api-categories'),
+       
 ]
+
