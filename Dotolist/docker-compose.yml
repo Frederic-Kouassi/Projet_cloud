@@ -1,7 +1,7 @@
 services:
-  web:
+  dotolist_service:
     build: .
-    container_name: web
+    container_name: dotolist_service
     command: gunicorn Dotolist.wsgi:application --bind 0.0.0.0:8000 --timeout 120
     volumes:
       - .:/app
@@ -12,13 +12,13 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - dotolist_db
     networks:
       - mynetwork
 
-  db:
+  dotolist_db:
     image: postgres:15
-    container_name: db
+    container_name: dotolist_db
     restart: always
     env_file:
       - .env
