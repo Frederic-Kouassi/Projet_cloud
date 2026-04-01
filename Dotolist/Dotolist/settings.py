@@ -82,26 +82,29 @@ WSGI_APPLICATION = 'Dotolist.wsgi.application'
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-if DEBUG:
-    # 👉 PostgreSQL local
+# Database configuration using python-decouple
+# It defaults to individual DB_* variables if DATABASE_URL is not set.
+DATABASE_URL = config('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=not DEBUG  # Only require SSL in production
+        )
+    }
+else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME'),
-            'USER': config('DB_USER'),
-            'PASSWORD': config('DB_PASSWORD'),
-            'HOST': config('DB_HOST'),
-            'PORT': config('DB_PORT'),
+            'NAME': config('DB_NAME', default='Dotolist'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='127.0.0.1'),
+            'PORT': config('DB_PORT', default='5432'),
         }
-    }
-else:
-    # 👉 Production (DATABASE_URL)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
-        )
     }
 STATIC_URL = '/static/'
 
@@ -145,32 +148,15 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
-
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 TAILWIND_APP_NAME = "theme"
-INTERNAL_IPS =[
-    "127.0.0.1"
-]
+INTERNAL_IPS = ["127.0.0.1"]
 
-
-NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
-
-# Chemin pour les fichiers statiques
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-
-# Emplacement où Django collecte tous les fichiers statiques pour la prod
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # pour collectstatic en production
-
-# Dossier(s) supplémentaire(s) pour les fichiers statiques (dev)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
-    BASE_DIR / 'app' / 'static',  # chemin vers ton dossier static principal
+    BASE_DIR / 'app' / 'static',
 ]
