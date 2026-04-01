@@ -10,11 +10,8 @@ python manage.py migrate --noinput
 echo "📦 Collecting static files..."
 python manage.py collectstatic --noinput --clear
 
-echo "🌐 Compiling translations..."
-python manage.py compilemessages -i .venv -i node_modules -l en # English
+echo "✅ Database Migrations and Static Collection Complete"
 
-echo "✅ Translation Compilation Complete"
-
-# 🚀 Execute the container command (gunicorn, celery, etc.)
+# 🚀 Execute the container command (gunicorn, etc.)
 echo "🚀 Starting: $@"
 exec "$@"

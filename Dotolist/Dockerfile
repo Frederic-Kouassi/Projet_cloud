@@ -8,13 +8,10 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    pkg-config \
-    libcairo2-dev \
     libffi-dev \
     libssl-dev \
     libpq-dev \
     gettext \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
