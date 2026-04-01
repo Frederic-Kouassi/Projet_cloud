@@ -16,10 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from app.views import RegisterView, CategoryCreateView
+from app.views import RegisterView, CategoryCreateView, TaskDeleteAPIView, TaskUpdateAPIView,CategoryDeleteAPIView, CategoryUpdateAPIView,  TaskCreateView, TaskListAPIView, CategoryListAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RegisterView.as_view(), name='register'),
       path('categories/create/', CategoryCreateView.as_view(), name='category_create'),
+     
+       path('tasks/create/', TaskCreateView.as_view(), name='task_create'),
+       path('api/tasks/', TaskListAPIView.as_view(), name='api_tasks'), 
+       path('api/categories/', CategoryListAPIView.as_view(), name='api-categories'),
+       
+        path('api/categories/<int:pk>/update/',  CategoryUpdateAPIView.as_view()),
+    path('api/categories/<int:pk>/delete/',  CategoryDeleteAPIView.as_view()),
+    
+    path('api/tasks/<int:pk>/update/', TaskUpdateAPIView.as_view(), name='task-update'),
+
+    # Supprimer une tâche
+    path('api/tasks/<int:pk>/delete/', TaskDeleteAPIView.as_view(), name='task-delete'),
+       
 ]
+
