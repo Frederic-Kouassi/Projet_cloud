@@ -585,7 +585,7 @@ function openEditCategoryModal(id) {
   openModal('cat-modal');
   setTimeout(() => document.getElementById('cat-name').focus(), 250);
 }
-
+// il est impossible de save une categorie on dit Erreur lors de la sauvegarde.
 async function saveCategory() {
   const name = document.getElementById('cat-name').value.trim();
   if (!name) {
@@ -624,7 +624,7 @@ async function saveCategory() {
     showToast('❌ Erreur lors de la sauvegarde.');
   }
 }
-
+// lorsque tu supprime et il faut egalement supprimer tous les taches qui lui sont associé
 async function deleteCategory(id, name) {
   if (!confirm(`Supprimer la catégorie "${name}" ?\nLes tâches liées ne seront pas supprimées.`)) return;
 

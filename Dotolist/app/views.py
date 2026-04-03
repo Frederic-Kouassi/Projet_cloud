@@ -127,22 +127,24 @@ class TaskCreateView(View):
 from .models import Category
 
 class CategoryCreateView(View):
-    template_name = 'base.html'
     
-    def get(self, request):
-        # Affiche le formulaire
-        return render(request, self.template_name)
-
     def post(self, request):
-        # Récupère les données du formulaire
-        name = request.POST.get('name', '')
+        name  = request.POST.get('name', '').strip()
         color = request.POST.get('color', '#6366f1')
-        icon = request.POST.get('icon', '')
+        icon  = request.POST.get('icon', '')
 
-        if name:  # On ne crée que si le nom est fourni
-            Category.objects.create(name=name, color=color, icon=icon)
+        if not name:
+            return JsonResponse({'ok': False, 'error': 'Le nom est requis.'}, status=400)
 
-        return redirect('category_create')  # Recharge la page avec la liste
+        category = Category.objects.create(name=name, color=color, icon=icon)
+
+        return JsonResponse({
+            'ok': True,
+            'id':    category.id,
+            'name':  category.name,
+            'color': category.color,
+            'icon':  category.icon,
+        })
     
     
     
